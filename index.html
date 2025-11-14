@@ -1,56 +1,273 @@
-<!--
-This sample web application provides a simple Click-Through Splash page for Cisco Meraki networks.
-Usage:
-* Configure your Cisco Meraki wireless network with a Click-through splash page.
-* Configure the "Custom URL" to point to your webserver that is hosting this HTML file.
-* Update the "Walled Garden" with the IP or Domain Name for your webserver and any supporting resources
-* Add any additional logic to forward the form data to your preferred service. By default, a simple alert
-displays the results of one form entry and then prints the Meraki provided parameters in the the footer. 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Wi-Fi Invitados Zonkeys (Aruba)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-Sample URL received from Meraki to this page.
-http://localhost:5000/?base_grant_url=https%3A%2F%2Fn143.network-auth.com%2Fsplash%2Fgrant&user_continue_url=http%3A%2F%2Fspeedof.me%2F&node_id=149624922840090&node_mac=88:15:44:60:1c:1a&gateway_id=149624922840090&client_ip=10.255.60.208&client_mac=f4:5c:89:9b:17:67
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f3f4f6;
+      color: #111827;
+    }
 
+    .wrapper {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
 
-This is example was written by:
-Cory Guynn
-www.InternetOfLEGO.com
-2016
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      max-width: 420px;
+      width: 100%;
+      padding: 24px 22px 26px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+    }
 
-LICENSE: MIT
-"Have Fun!, use and abuse"
--->
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<html>
-    <head>
-        <link rel="stylesheet" type="text/css" href="./css/style.css">
-    </head>
-    <div class="container">  
-      
-      <form id="loginForm" action="#">
-        <center><a href="http://developers.meraki.com"><img src="./img/meraki-logo.png" width="50%"/></a></center>
-        <br>
-        <fieldset>
-          <input id="name" placeholder="Your name" type="text" tabindex="1" required autofocus>
-        </fieldset>
-        <fieldset>
-          <input id="email" placeholder="Your Email Address" type="email" tabindex="2" required>
-        </fieldset>
-        <fieldset>
-          <input id="company" placeholder="Your Company (optional)" type="text" tabindex="3">
-        </fieldset>
-        <fieldset>
-          <button type="submit" >Log in to WiFi</button>
-        </fieldset>
-        <p class="copyright">Sample by <a href="http://www.InternetOfLEGO.com" target="_blank" title="Internet of LEGO">Internet of LEGO</a></p>
-      </form>
+    .logo {
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .logo span {
+      font-weight: 800;
+      font-size: 1.2rem;
+      letter-spacing: .04em;
+    }
+
+    h1 {
+      font-size: 1.2rem;
+      text-align: center;
+      margin: 0 0 4px;
+    }
+
+    .subtitle {
+      font-size: .9rem;
+      text-align: center;
+      color: #4b5563;
+      margin-bottom: 16px;
+    }
+
+    form {
+      display: grid;
+      gap: 10px;
+    }
+
+    label {
+      font-size: .85rem;
+      font-weight: 600;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-size: .9rem;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #2563eb;
+      box-shadow: 0 0 0 1px rgba(37,99,235,0.3);
+    }
+
+    input:invalid[required] {
+      border-color: #dc2626;
+      background: #fef2f2;
+    }
+
+    input:valid {
+      border-color: #16a34a;
+      background: #ecfdf3;
+    }
+
+    .error {
+      display: none;
+      font-size: .75rem;
+      color: #dc2626;
+      margin-top: -4px;
+    }
+
+    .hint {
+      font-size: .75rem;
+      color: #6b7280;
+      margin-top: -4px;
+      margin-bottom: 2px;
+    }
+
+    button[type="submit"] {
+      margin-top: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: none;
+      font-weight: 600;
+      font-size: .95rem;
+      background: #22c55e;
+      color: #ffffff;
+      cursor: pointer;
+      transition: background .15s, box-shadow .15s, transform .05s;
+    }
+
+    button[type="submit"]:hover {
+      background: #16a34a;
+      box-shadow: 0 8px 20px rgba(22,163,74,0.35);
+      transform: translateY(-1px);
+    }
+
+    .small {
+      font-size: .75rem;
+      text-align: center;
+      color: #6b7280;
+      margin-top: 8px;
+    }
+
+    .center {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="card" id="card">
+
+      <div id="portal">
+        <div class="logo">
+          <span>ZONKEYS WIFI</span>
+        </div>
+        <h1>Conéctate al Wi-Fi de invitados</h1>
+        <p class="subtitle">
+          Ingresa tus datos para acceder a Internet.
+        </p>
+
+        <form id="access-form" novalidate>
+          <label for="name">Tu nombre *</label>
+          <input id="name" name="guest_name" type="text" required minlength="3"
+                 placeholder="Ej. Juan Pérez">
+          <div class="error" data-for="name">
+            Este campo no puede estar en blanco (mínimo 3 caracteres).
+          </div>
+
+          <label for="email">Tu email *</label>
+          <input id="email" name="guest_email" type="email" required
+                 placeholder="tucorreo@ejemplo.com">
+          <div class="error" data-for="email">
+            Ingresa un correo electrónico válido.
+          </div>
+
+          <label for="phone">Tu teléfono *</label>
+          <input id="phone" name="guest_phone" type="tel" required
+                 pattern="[0-9]{10}" maxlength="10" inputmode="numeric"
+                 placeholder="10 dígitos, sin espacios">
+          <div class="error" data-for="phone">
+            Ingresa un número de teléfono de 10 dígitos (solo números).
+          </div>
+          <div class="hint">Todos los campos marcados con * son obligatorios.</div>
+
+          <button type="submit">Acceder a Internet</button>
+        </form>
+
+        <p class="small">
+          Tu información se usa solo con fines internos del club.
+        </p>
+      </div>
+
+      <!-- Vista de “gracias / autenticado” para Aruba -->
+      <div id="thanks" style="display:none" class="center">
+        <h2>¡Gracias!</h2>
+        <p>Ya puedes navegar en Internet desde la red de invitados Zonkeys.</p>
+        <!-- IMPORTANTE:
+             Configura en el perfil de Aruba el "Authentication Text"
+             exactamente igual a este texto: AUTH_OK
+        -->
+        <p id="auth-text" style="font-size:0.001rem; color:#ffffff;">AUTH_OK</p>
+      </div>
+
     </div>
-    <hr>
-    <h4>Debugging Stats</h4>
-    <p><label>Base Grant URL: </label><label id="baseGrantURL"></label></p>
-    <p><label>User Continue URL: </label><label id="userContinueURL"></label></p>
-    <p><label>Client IP: </label><label id="clientIP"></label></p>
-    <p><label>Client MAC: </label><label id="clientMAC"></label></p>
-    <p><label>Access Point MAC: </label><label id="nodeMAC"></label></p>
-        
-    <script src="./js/meraki.js"></script>
+  </div>
+
+  <script>
+    // === Opcional: endpoint para guardar en Google Sheets vía Apps Script ===
+    const APPS_SCRIPT_URL =
+      "https://script.google.com/macros/s/AKfycbzzTVDFJgpLqUunQA5j_2-KXbcIXdJmkF2bcYKXKrh07g2EACZ0kD4KqyK9ik8Hjpme/exec";
+      // Si no quieres guardar datos, deja APPS_SCRIPT_URL = "";
+
+    // Aruba suele mandar parámetros como ip, mac, essid, url, apname, etc.
+    const params = new URLSearchParams(window.location.search);
+    const originalUrl = params.get("url") || "https://www.google.com";
+    const essid       = params.get("essid") || "";
+    const clientMac   = params.get("mac")   || "";
+    const clientIp    = params.get("ip")    || "";
+
+    const form = document.getElementById("access-form");
+    const portal = document.getElementById("portal");
+    const thanks = document.getElementById("thanks");
+
+    form.addEventListener("submit", function (event) {
+      event.preventDefault();
+      hideErrors();
+
+      // Validación HTML5
+      if (!form.checkValidity()) {
+        showFieldError("name",  !form.name.validity.valid);
+        showFieldError("email", !form.email.validity.valid);
+        showFieldError("phone", !form.phone.validity.valid);
+        form.reportValidity();
+        return;
+      }
+
+      const name  = form.name.value.trim();
+      const email = form.email.value.trim();
+      const phone = form.phone.value.trim();
+
+      // Enviar a Apps Script (guardar en Sheets) - opcional
+      if (APPS_SCRIPT_URL) {
+        const data = new URLSearchParams();
+        data.append("guest_name",  name);
+        data.append("guest_email", email);
+        data.append("guest_phone", phone);
+        data.append("essid",       essid);
+        data.append("client_mac",  clientMac);
+        data.append("client_ip",   clientIp);
+
+        fetch(APPS_SCRIPT_URL, {
+          method: "POST",
+          mode: "no-cors",
+          body: data
+        }).catch(function (err) {
+          console.error("Error enviando a Apps Script:", err);
+        });
+      }
+
+      // Mostramos pantalla de "gracias" con el texto AUTH_OK
+      portal.style.display = "none";
+      thanks.style.display = "block";
+
+      // Si quieres además redirigir al usuario a la URL original después de unos segundos:
+      setTimeout(function () {
+        window.location.href = originalUrl;
+      }, 1500);
+    });
+
+    function showFieldError(fieldId, hasError) {
+      const msg = document.querySelector('.error[data-for="' + fieldId + '"]');
+      if (msg) msg.style.display = hasError ? "block" : "none";
+    }
+
+    function hideErrors() {
+      document.querySelectorAll(".error").forEach(function (el) {
+        el.style.display = "none";
+      });
+    }
+  </script>
+</body>
 </html>
