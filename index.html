@@ -188,74 +188,43 @@
 
     </div>
   </div>
+<script>
+  const APPS_SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbzzTVDFJgpLqUunQA5j_2-KXbcIXdJmkF2bcYKXKrh07g2EACZ0kD4KqyK9ik8Hjpme/exec";
 
-  <script>
-    
-    const APPS_SCRIPT_URL =
-      "https://script.google.com/macros/s/AKfycbzzTVDFJgpLqUunQA5j_2-KXbcIXdJmkF2bcYKXKrh07g2EACZ0kD4KqyK9ik8Hjpme/exec";
+  const params     = new URLSearchParams(window.location.search);
+  const essid      = params.get("essid") || "";
+  const clientMac  = params.get("mac")   || "";
+  const clientIp   = params.get("ip")    || "";
 
-    const params = new URLSearchParams(window.location.search);
-    const originalUrl = params.get("url") || "https://www.google.com";
-    const essid       = params.get("essid") || "";
-    const clientMac   = params.get("mac")   || "";
-    const clientIp    = params.get("ip")    || "";
+  const form   = document.getElementById("access-form");
 
-    const form = document.getElementById("access-form");
-    const portal = document.getElementById("portal");
-    const thanks = document.getElementById("thanks");
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-    form.addEventListener("submit", function (event) {
-      event.preventDefault();
-      hideErrors();
-
-      if (!form.checkValidity()) {
-        showFieldError("name",  !form.name.validity.valid);
-        showFieldError("email", !form.email.validity.valid);
-        showFieldError("phone", !form.phone.validity.valid);
-        form.reportValidity();
-        return;
-      }
-
-      const name  = form.name.value.trim();
-      const email = form.email.value.trim();
-      const phone = form.phone.value.trim();
-
-      if (APPS_SCRIPT_URL) {
-        const data = new URLSearchParams();
-        data.append("guest_name",  name);
-        data.append("guest_email", email);
-        data.append("guest_phone", phone);
-        data.append("essid",       essid);
-        data.append("client_mac",  clientMac);
-        data.append("client_ip",   clientIp);
-
-        fetch(APPS_SCRIPT_URL, {
-          method: "POST",
-          mode: "no-cors",
-          body: data
-        }).catch(function (err) {
-          console.error("Error enviando a Apps Script:", err);
-        });
-      }
-
-      portal.style.display = "none";
-      thanks.style.display = "block";
-
-      setTimeout(function () {
-        window.location.href = originalUrl;
-      }, 1500);
-    });
-
-    function showFieldError(fieldId, hasError) {
-      const msg = document.querySelector('.error[data-for="' + fieldId + '"]');
-      if (msg) msg.style.display = hasError ? "block" : "none";
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
     }
 
-    function hideErrors() {
-      document.querySelectorAll(".error").forEach(function (el) {
-        el.style.display = "none";
-      });
+    const data = new URLSearchParams();
+    data.append("guest_name",  form.name.value.trim());
+    data.append("guest_email", form.email.value.trim());
+    data.append("guest_phone", form.phone.value.trim());
+    data.append("essid",       essid);
+    data.append("client_mac",  clientMac);
+    data.append("client_ip",   clientIp);
+
+    try {
+      await fetch(APPS_SCRIPT_URL, { method: "POST", mode: "no-cors", body: data });
+    } catch (e) {
+      console.warn("Apps Script no respondió (no-cors):", e);
     }
-  </script>
+    document.open('text/plain', 'replace');
+    document.write('AUTH_OK');
+    document.close();
+
+  });
+</script>
 </body>
 </html>
