@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Wi-Fi Invitados Zonkeys (Aruba)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
+  <meta charset="UTF-8" />
+  <title>Wi-Fi Invitados Zonkeys</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
       margin: 0;
@@ -12,61 +11,29 @@
       background: #f3f4f6;
       color: #111827;
     }
-
     .wrapper {
       min-height: 100vh;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       padding: 16px;
     }
-
     .card {
-      background: #ffffff;
+      background: #fff;
       border-radius: 12px;
+      padding: 24px;
       max-width: 420px;
       width: 100%;
-      padding: 24px 22px 26px;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.08);
-    }
-
-    .logo {
+      box-shadow: 0 12px 32px rgba(0,0,0,.08);
       text-align: center;
-      margin-bottom: 12px;
     }
-
-    .logo span {
-      font-weight: 800;
-      font-size: 1.2rem;
-      letter-spacing: .04em;
-    }
-
-    h1 {
-      font-size: 1.2rem;
-      text-align: center;
-      margin: 0 0 4px;
-    }
-
-    .subtitle {
-      font-size: .9rem;
-      text-align: center;
-      color: #4b5563;
-      margin-bottom: 16px;
-    }
-
-    form {
-      display: grid;
-      gap: 10px;
-    }
-
     label {
-      font-size: .85rem;
+      display: block;
+      margin-top: 10px;
       font-weight: 600;
+      text-align: left;
     }
-
-    input[type="text"],
-    input[type="email"],
-    input[type="tel"] {
+    input {
       width: 100%;
       box-sizing: border-box;
       padding: 8px 10px;
@@ -74,114 +41,40 @@
       border: 1px solid #d1d5db;
       font-size: .9rem;
     }
-
-    input:focus {
-      outline: none;
-      border-color: #2563eb;
-      box-shadow: 0 0 0 1px rgba(37,99,235,0.3);
-    }
-
-    button[type="submit"] {
-      margin-top: 8px;
+    button {
+      margin-top: 14px;
+      width: 100%;
       padding: 10px 16px;
       border-radius: 999px;
       border: none;
       font-weight: 600;
       font-size: .95rem;
       background: #22c55e;
-      color: #ffffff;
+      color: #fff;
       cursor: pointer;
-      transition: background .15s, box-shadow .15s, transform .05s;
-    }
-
-    button[type="submit"]:hover {
-      background: #16a34a;
-      box-shadow: 0 8px 20px rgba(22,163,74,0.35);
-      transform: translateY(-1px);
-    }
-
-    .small {
-      font-size: .75rem;
-      text-align: center;
-      color: #6b7280;
-      margin-top: 8px;
     }
   </style>
 </head>
 <body>
   <div class="wrapper">
     <div class="card">
+      <h2>Wi-Fi Invitados Zonkeys</h2>
+      <p>Ingresa tus datos para acceder a Internet.</p>
 
-      <!-- Portal -->
-      <div id="portal">
-        <div class="logo">
-          <span>ZONKEYS WIFI</span>
-        </div>
-        <h1>Conéctate al Wi-Fi de invitados</h1>
-        <p class="subtitle">Ingresa tus datos para acceder a Internet.</p>
+      <!-- Cambia el action por TU URL de Apps Script /exec -->
+      <form method="post" action="https://script.google.com/macros/s/AKfycbxdzxFl2QsbZxwMejhM3xNClwK1xIO2rYQLkm2mxgbbIGgOKbliBuXE3bCqwDYWe9s3/exec">
+        <label>Nombre *</label>
+        <input type="text" name="guest_name" required minlength="3" />
 
-        <form id="access-form" novalidate>
-          <label for="name">Tu nombre *</label>
-          <input id="name" name="guest_name" type="text" required minlength="3" placeholder="Ej. Juan Pérez">
+        <label>Correo *</label>
+        <input type="email" name="guest_email" required />
 
-          <label for="email">Tu email *</label>
-          <input id="email" name="guest_email" type="email" required placeholder="tucorreo@ejemplo.com">
+        <label>Teléfono *</label>
+        <input type="text" name="guest_phone" required pattern="[0-9]{10}" maxlength="10" />
 
-          <label for="phone">Tu teléfono *</label>
-          <input id="phone" name="guest_phone" type="tel" required pattern="[0-9]{10}" maxlength="10" inputmode="numeric" placeholder="10 dígitos, sin espacios">
-
-          <button type="submit">Acceder a Internet</button>
-        </form>
-
-        <p class="small">Tu información se usa solo con fines internos del club.</p>
-      </div>
-
+        <button type="submit">Acceder</button>
+      </form>
     </div>
   </div>
-
-<script>
-  const APPS_SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbzzTVDFJgpLqUunQA5j_2-KXbcIXdJmkF2bcYKXKrh07g2EACZ0kD4KqyK9ik8Hjpme/exec";
-
-  const AUTH_PAGE =
-    "https://issacsme.github.io/PortalCautivo/auth-ok.html";
-
-  const params = new URLSearchParams(window.location.search);
-  const essid = params.get("essid") || "";
-  const clientMac = params.get("mac") || "";
-  const clientIp = params.get("ip") || "";
-
-  const form = document.getElementById("access-form");
-
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-
-    const data = new URLSearchParams();
-    data.append("guest_name", form.name.value.trim());
-    data.append("guest_email", form.email.value.trim());
-    data.append("guest_phone", form.phone.value.trim());
-    data.append("essid", essid);
-    data.append("client_mac", clientMac);
-    data.append("client_ip", clientIp);
-
-    try {
-      await fetch(APPS_SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        body: data
-      });
-    } catch (e) {
-      console.warn("Apps Script no respondió:", e);
-    }
-
-    // Redirigir a la página que contiene AUTH_OK
-    window.location.href = AUTH_PAGE;
-  });
-</script>
 </body>
 </html>
