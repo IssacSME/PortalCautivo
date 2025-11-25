@@ -162,32 +162,32 @@
 
   const form = document.getElementById("access-form");
 
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
 
-    const data = new URLSearchParams();
-    data.append("guest_name", form.name.value.trim());
-    data.append("guest_email", form.email.value.trim());
-    data.append("guest_phone", form.phone.value.trim());
-    data.append("essid", essid);
-    data.append("client_mac", clientMac);
-    data.append("client_ip", clientIp);
+  const data = new URLSearchParams();
+  data.append("guest_name", form.name.value.trim());
+  data.append("guest_email", form.email.value.trim());
+  data.append("guest_phone", form.phone.value.trim());
+  data.append("essid", essid);
+  data.append("client_mac", clientMac);
+  data.append("client_ip", clientIp);
 
-    try {
-      await fetch(APPS_SCRIPT_URL, { method: "POST", mode: "no-cors", body: data });
-    } catch (e) {
-      console.warn("Apps Script no respondió (no-cors):", e);
-    }
+  try {
+    await fetch(APPS_SCRIPT_URL, { method: "POST", mode: "no-cors", body: data });
+  } catch (e) {
+    console.warn("Apps Script no respondió (no-cors):", e);
+  }
 
-    // Mostrar pantalla de gracias con AUTH_OK
-    document.getElementById("portal").style.display = "none";
-    document.getElementById("thanks").style.display = "block";
-  });
+  // AQUÍ en vez de mostrar el <div id="thanks">,
+  // redirigimos a una segunda página estática:
+  window.location.href = "https://issacsme.github.io/PortalCautivo/auth-ok.html";
+});
 </script>
 </body>
 </html>
